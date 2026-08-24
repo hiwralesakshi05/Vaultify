@@ -1,0 +1,24 @@
+{
+  "name": "vaultify",
+  "version": "1.0.0",
+  "description": "A **Zero-Knowledge Password Manager**. Vaultify is built so that even the server storing your data can never read it — all encryption and decryption happens entirely in your browser, using your Master Password. The server only ever sees encrypted gibberish.",
+  "main": "crypto.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hiwralesakshi05/Vaultify.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/hiwralesakshi05/Vaultify/issues"
+  },
+  "homepage": "https://github.com/hiwralesakshi05/Vaultify#readme",
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}
