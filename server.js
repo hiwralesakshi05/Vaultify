@@ -88,13 +88,23 @@ app.get("/salt/:username", async (req, res) => {
 });
 // LOGIN route — checks the real database, issues a JWT.
 app.post("/login", async (req, res) => {
-  const { username, authKey } = req.body;
+  const { username, authKey, code } = req.body;
 
   try {
     const user = await User.findOne({ username });
-
-    if (!user || user.authKey !== authKey) {
+      if (!user || user.authKey !== authKey) {
       return res.status(401).json({ success: false, message: "Invalid credentials" });
+    }
+
+    if (user.twoFactorEnabled) {
+      if (!code) {
+        return res.json({ success: false, requires2FA: true, message: "2FA code required" });
+      }
+
+      const isValidCode = authenticator.verify({ token: code, secret: user.twoFactorSecret });
+      if (!isValidCode) {
+        return res.status(401).json({ success: false, message: "Invalid 2FA code" });
+      }
     }
 
     const token = jwt.sign({ username: username }, JWT_SECRET, { expiresIn: "1h" });
