@@ -12,6 +12,8 @@ require("dotenv").config(); // loads variables from .env into process.env
 
 const express = require("express");
 const jwt = require("jsonwebtoken");
+const { authenticator } = require("otplib");
+const QRCode = require("qrcode");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const app = express();
@@ -34,6 +36,8 @@ const userSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
   authKey: { type: String, required: true },
   salt: { type: String, required: true },
+  twoFactorSecret: { type: String, default: null },
+  twoFactorEnabled: { type: Boolean, default: false },
 });
 const User = mongoose.model("User", userSchema);
 
@@ -103,6 +107,45 @@ app.post("/login", async (req, res) => {
 /**
  * The "bouncer" middleware. Runs BEFORE any route it's attached to.
  */
+// SETUP 2FA — generates a secret + QR code for the logged-in user.
+// Requires a valid token (must already be logged in via password).
+app.post("/2fa/setup", requireAuth, async (req, res) => {
+  try {
+    const secret = authenticator.generateSecret();
+    const otpauthUrl = authenticator.keyuri(req.username, "Vaultify", secret);
+    const qrCode = await QRCode.toDataURL(otpauthUrl);
+
+    // Save the secret but DON'T enable 2FA yet — only after the user
+    // proves their authenticator app is correctly synced (next route).
+    await User.findOneAndUpdate({ username: req.username }, { twoFactorSecret: secret });
+
+    res.json({ success: true, qrCode: qrCode, secret: secret });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Server error", error: err.message });
+  }
+});
+
+// VERIFY 2FA — confirms the user's authenticator app produces a
+// correct code, then turns 2FA on for their account.
+app.post("/2fa/verify", requireAuth, async (req, res) => {
+  const { code } = req.body;
+
+  try {
+    const user = await User.findOne({ username: req.username });
+    const isValid = authenticator.verify({ token: code, secret: user.twoFactorSecret });
+
+    if (!isValid) {
+      return res.status(400).json({ success: false, message: "Invalid code" });
+    }
+
+    user.twoFactorEnabled = true;
+    await user.save();
+
+    res.json({ success: true, message: "2FA enabled!" });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Server error", error: err.message });
+  }
+});
 function requireAuth(req, res, next) {
   const authHeader = req.headers.authorization;
 
