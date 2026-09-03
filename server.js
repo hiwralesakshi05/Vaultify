@@ -68,7 +68,7 @@ app.post("/register", async (req, res) => {
 
     res.json({ success: true, message: "User registered!" });
   } catch (err) {
-    res.status(500).json({ success: false, message: "Server error", error: err.message });
+    res.status(500).json({ success: false, message: "Server error"});
   }
 });
 // Returns a user's salt so the browser can derive login keys locally.
@@ -83,7 +83,7 @@ app.get("/salt/:username", async (req, res) => {
 
     res.json({ success: true, salt: user.salt });
   } catch (err) {
-    res.status(500).json({ success: false, message: "Server error", error: err.message });
+    res.status(500).json({ success: false, message: "Server error"});
   }
 });
 // LOGIN route — checks the real database, issues a JWT.
@@ -110,7 +110,7 @@ app.post("/login", async (req, res) => {
     const token = jwt.sign({ username: username }, JWT_SECRET, { expiresIn: "1h" });
     res.json({ success: true, message: "Login successful!", token: token });
   } catch (err) {
-    res.status(500).json({ success: false, message: "Server error", error: err.message });
+    res.status(500).json({ success: false, message: "Server error"});
   }
 });
 
@@ -131,7 +131,7 @@ app.post("/2fa/setup", requireAuth, async (req, res) => {
 
     res.json({ success: true, qrCode: qrCode, secret: secret });
   } catch (err) {
-    res.status(500).json({ success: false, message: "Server error", error: err.message });
+    res.status(500).json({ success: false, message: "Server error"});
   }
 });
 
@@ -153,7 +153,7 @@ app.post("/2fa/verify", requireAuth, async (req, res) => {
 
     res.json({ success: true, message: "2FA enabled!" });
   } catch (err) {
-    res.status(500).json({ success: false, message: "Server error", error: err.message });
+    res.status(500).json({ success: false, message: "Server error"});
   }
 });
 function requireAuth(req, res, next) {
@@ -185,7 +185,7 @@ app.get("/vault", requireAuth, async (req, res) => {
 
     res.json({ success: true, blob: vault.blob });
   } catch (err) {
-    res.status(500).json({ success: false, message: "Server error", error: err.message });
+    res.status(500).json({ success: false, message: "Server error"});
   }
 });
 
@@ -202,7 +202,7 @@ app.put("/vault", requireAuth, async (req, res) => {
 
     res.json({ success: true, message: "Vault saved!" });
   } catch (err) {
-    res.status(500).json({ success: false, message: "Server error", error: err.message });
+    res.status(500).json({ success: false, message: "Server error"});
   }
 });
 
