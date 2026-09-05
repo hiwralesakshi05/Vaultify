@@ -68,6 +68,7 @@ app.post("/register", async (req, res) => {
 
     res.json({ success: true, message: "User registered!" });
   } catch (err) {
+  console.error(err);
     res.status(500).json({ success: false, message: "Server error"});
   }
 });
@@ -83,6 +84,7 @@ app.get("/salt/:username", async (req, res) => {
 
     res.json({ success: true, salt: user.salt });
   } catch (err) {
+  console.error(err);
     res.status(500).json({ success: false, message: "Server error"});
   }
 });
@@ -110,6 +112,7 @@ app.post("/login", async (req, res) => {
     const token = jwt.sign({ username: username }, JWT_SECRET, { expiresIn: "1h" });
     res.json({ success: true, message: "Login successful!", token: token });
   } catch (err) {
+  console.error(err);
     res.status(500).json({ success: false, message: "Server error"});
   }
 });
@@ -131,6 +134,7 @@ app.post("/2fa/setup", requireAuth, async (req, res) => {
 
     res.json({ success: true, qrCode: qrCode, secret: secret });
   } catch (err) {
+  console.error(err);
     res.status(500).json({ success: false, message: "Server error"});
   }
 });
@@ -153,6 +157,7 @@ app.post("/2fa/verify", requireAuth, async (req, res) => {
 
     res.json({ success: true, message: "2FA enabled!" });
   } catch (err) {
+  console.error(err);
     res.status(500).json({ success: false, message: "Server error"});
   }
 });
@@ -170,6 +175,7 @@ function requireAuth(req, res, next) {
     req.username = decoded.username;
     next();
   } catch (err) {
+  console.error(err);
     return res.status(401).json({ success: false, message: "Invalid or expired token" });
   }
 }
@@ -185,6 +191,7 @@ app.get("/vault", requireAuth, async (req, res) => {
 
     res.json({ success: true, blob: vault.blob });
   } catch (err) {
+  console.error(err);
     res.status(500).json({ success: false, message: "Server error"});
   }
 });
@@ -202,6 +209,7 @@ app.put("/vault", requireAuth, async (req, res) => {
 
     res.json({ success: true, message: "Vault saved!" });
   } catch (err) {
+  console.error(err);
     res.status(500).json({ success: false, message: "Server error"});
   }
 });
